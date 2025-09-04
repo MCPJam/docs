@@ -1,0 +1,467 @@
+---
+title: "Using the LLM Playground"
+description: "Master the LLM Playground to test realistic AI interactions with your MCP server"
+---
+
+The LLM Playground is where your MCP server comes to life. Test how real AI models interact with your tools and resources in a natural conversational environment, helping you validate that your implementation works correctly in real-world scenarios.
+
+## Getting Started
+
+### Prerequisites
+
+Before using the playground, ensure you have:
+
+1. **Connected MCP Server**: At least one MCP server connected to Inspector
+2. **AI Provider Configured**: API keys for OpenAI, Anthropic, DeepSeek, or Ollama setup
+3. **Tools Available**: Your MCP server exposes at least one tool or resource
+
+### Accessing the Playground
+
+<img src="/images/playground-access.png" alt="Accessing LLM Playground" />
+
+1. Navigate to the **"LLM Playground"** tab in Inspector
+2. Select your preferred AI model from the dropdown
+3. Adjust model parameters if needed (temperature, max tokens, etc.)
+4. Start chatting!
+
+## Model Selection & Configuration
+
+### Choosing the Right Model
+
+Different models excel at different types of interactions:
+
+<Tabs>
+  <Tab title="OpenAI GPT-4">
+    **Best for**: Complex reasoning, multi-step tool usage, nuanced understanding
+    
+    **Strengths:**
+    - Excellent tool calling capabilities
+    - Strong reasoning about when to use tools
+    - Good at handling complex, multi-parameter tools
+    
+    **Settings:**
+    ```json
+    {
+      "model": "gpt-4",
+      "temperature": 0.7,
+      "max_tokens": 2000,
+      "top_p": 1.0
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Claude 3">
+    **Best for**: Detailed analysis, code review, safety-conscious interactions
+    
+    **Strengths:**
+    - Thoughtful tool usage decisions
+    - Excellent at explaining tool results
+    - Strong safety and ethical reasoning
+    
+    **Settings:**
+    ```json
+    {
+      "model": "claude-3-opus-20240229",
+      "max_tokens": 4000,
+      "temperature": 0.3
+    }
+    ```
+  </Tab>
+  
+  <Tab title="DeepSeek R1">
+    **Best for**: Coding tasks, mathematical reasoning, structured problems
+    
+    **Strengths:**
+    - Optimized for reasoning tasks
+    - Excellent code generation and debugging
+    - Strong analytical capabilities
+    
+    **Settings:**
+    ```json
+    {
+      "model": "deepseek-r1",
+      "temperature": 0.1,
+      "max_tokens": 8000
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Ollama Local">
+    **Best for**: Privacy-sensitive testing, offline development, cost-effective iteration
+    
+    **Strengths:**
+    - Complete privacy and offline capability
+    - No API costs
+    - Consistent availability
+    
+    **Settings:**
+    ```json
+    {
+      "model": "llama3.2",
+      "temperature": 0.7,
+      "context_window": 4096
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Model Parameters
+
+<img src="/images/model-parameters.png" alt="Model Parameter Configuration" />
+
+**Temperature** (0.0 - 1.0)
+- **Low (0.0-0.3)**: More deterministic, focused responses
+- **Medium (0.4-0.7)**: Balanced creativity and consistency  
+- **High (0.8-1.0)**: More creative and varied responses
+
+**Max Tokens**
+- Controls the maximum length of AI responses
+- Balance between comprehensive answers and response time
+- Consider your tool's output sizes when setting
+
+**Top-P** (Nuclear Sampling)
+- Alternative to temperature for controlling randomness
+- 0.9 is often a good default for most use cases
+
+## Testing Your MCP Tools
+
+### Natural Language Tool Invocation
+
+The playground's power lies in testing how AI models naturally discover and use your tools:
+
+```
+👤 You: "What's the weather like in Tokyo right now?"
+
+🤖 AI: I'll check the current weather in Tokyo for you.
+
+[Tool Call: get_weather]
+{
+  "location": "Tokyo, Japan"
+}
+
+[Tool Result]
+{
+  "temperature": 18,
+  "condition": "Partly cloudy", 
+  "humidity": 65,
+  "wind": "12 km/h"
+}
+
+🤖 AI: The current weather in Tokyo is partly cloudy with a temperature of 18°C (64°F). The humidity is at 65% and there's a light wind at 12 km/h. It's a pleasant day with some cloud cover!
+```
+
+### Multi-Tool Workflows
+
+Test complex scenarios that require multiple tool calls:
+
+```
+👤 You: "I'm planning a trip to Paris. Can you help me find good restaurants and check the weather forecast?"
+
+🤖 AI: I'd be happy to help with your Paris trip! Let me gather both restaurant recommendations and weather information for you.
+
+[Tool Call: get_weather_forecast]
+{
+  "location": "Paris, France",
+  "days": 5
+}
+
+[Tool Call: search_restaurants]
+{
+  "city": "Paris",
+  "cuisine": "French",
+  "rating_min": 4.0
+}
+
+[Results displayed and analyzed by AI...]
+```
+
+### Error Handling Testing
+
+Test how your tools handle invalid inputs:
+
+```
+👤 You: "What's the weather in XYZ123?"
+
+🤖 AI: Let me check the weather for that location.
+
+[Tool Call: get_weather]
+{
+  "location": "XYZ123"
+}
+
+[Tool Error]
+{
+  "error": "Invalid location",
+  "message": "Location 'XYZ123' not found",
+  "code": "LOCATION_NOT_FOUND"
+}
+
+🤖 AI: I'm sorry, but I couldn't find weather information for "XYZ123". This doesn't appear to be a valid location. Could you please provide a specific city name or address?
+```
+
+## Advanced Testing Scenarios
+
+### Edge Case Testing
+
+Use the playground to test edge cases that might be difficult to trigger manually:
+
+<Accordion title="Large Data Handling">
+  Test how your tools handle large datasets or responses:
+  
+  ```
+  👤 You: "Analyze all sales data from the past year and give me a comprehensive report."
+  
+  # This tests:
+  # - Large data processing capabilities
+  # - Response time handling
+  # - Memory usage patterns
+  # - Timeout behavior
+  ```
+</Accordion>
+
+<Accordion title="Concurrent Operations">
+  Test tools that might need to handle multiple simultaneous operations:
+  
+  ```
+  👤 You: "Can you simultaneously check the weather in New York, London, and Tokyo, then create a comparison chart?"
+  
+  # This tests:
+  # - Concurrent tool calls
+  # - Resource management
+  # - Data aggregation
+  # - Response coordination
+  ```
+</Accordion>
+
+<Accordion title="State Management">
+  Test tools that maintain state across interactions:
+  
+  ```
+  👤 You: "Create a new project called 'Website Redesign'"
+  👤 You: "Add a task to the Website Redesign project"
+  
+  # This tests:
+  # - State persistence
+  # - Context management
+  # - Data relationships
+  # - Session handling
+  ```
+</Accordion>
+
+### Authentication & Authorization
+
+Test tools that require different permission levels:
+
+```json
+{
+  "conversation": [
+    {
+      "user": "Show me my personal profile information",
+      "expectedBehavior": "Should access user-specific data"
+    },
+    {
+      "user": "Show me admin dashboard data", 
+      "expectedBehavior": "Should either provide admin data or show appropriate access denied message"
+    }
+  ]
+}
+```
+
+## Monitoring Tool Performance
+
+### Real-Time Metrics
+
+<img src="/images/playground-metrics.png" alt="Playground Performance Metrics" />
+
+While testing in the playground, monitor:
+
+- **Response Times**: How quickly your tools respond
+- **Success/Error Rates**: Reliability of tool executions
+- **Token Usage**: Cost implications of tool calls
+- **Memory Usage**: Resource consumption patterns
+
+### Performance Insights
+
+The playground provides insights into:
+
+```json
+{
+  "session_summary": {
+    "total_messages": 45,
+    "tool_calls": 23,
+    "avg_tool_response_time": "245ms",
+    "most_used_tool": "get_weather",
+    "error_rate": "2.1%",
+    "total_tokens": {
+      "input": 12450,
+      "output": 8932,
+      "total": 21382
+    }
+  }
+}
+```
+
+## Debugging with the Playground
+
+### Message Flow Analysis
+
+<img src="/images/playground-debug.png" alt="Playground Debug View" />
+
+Use the playground's debug view to analyze:
+
+1. **Tool Selection Logic**: Why the AI chose specific tools
+2. **Parameter Extraction**: How the AI parsed natural language into parameters
+3. **Error Recovery**: How the AI handles tool failures
+4. **Response Integration**: How tool results are incorporated into responses
+
+### Common Issues & Solutions
+
+<Accordion title="Tool Not Being Called">
+  **Symptoms**: AI doesn't use your tool when it should
+  
+  **Debugging Steps:**
+  1. Check tool description clarity
+  2. Verify parameter schema accuracy
+  3. Test with more explicit requests
+  4. Review tool naming conventions
+  
+  **Solution Example:**
+  ```json
+  // ❌ Vague description
+  {
+    "name": "get_data",
+    "description": "Gets data"
+  }
+  
+  // ✅ Clear, specific description
+  {
+    "name": "get_weather",
+    "description": "Get current weather conditions for a specific city or location"
+  }
+  ```
+</Accordion>
+
+<Accordion title="Wrong Parameters Passed">
+  **Symptoms**: AI calls tool with incorrect or missing parameters
+  
+  **Debugging Steps:**
+  1. Review parameter descriptions
+  2. Check required vs optional fields
+  3. Verify parameter types and formats
+  4. Add examples to schema
+  
+  **Solution Example:**
+  ```json
+  {
+    "parameters": {
+      "location": {
+        "type": "string",
+        "description": "City name and country (e.g., 'San Francisco, CA' or 'Tokyo, Japan')",
+        "examples": ["New York, NY", "London, UK", "Sydney, Australia"]
+      }
+    }
+  }
+  ```
+</Accordion>
+
+<Accordion title="Poor Error Handling">
+  **Symptoms**: AI gets confused by error responses
+  
+  **Debugging Steps:**
+  1. Ensure errors include clear messages
+  2. Provide error codes when possible
+  3. Include suggested corrections
+  4. Test error scenarios thoroughly
+  
+  **Solution Example:**
+  ```json
+  {
+    "error": {
+      "code": "LOCATION_NOT_FOUND",
+      "message": "Could not find weather data for 'Atlantis'",
+      "suggestion": "Please provide a valid city name like 'New York' or 'London'"
+    }
+  }
+  ```
+</Accordion>
+
+## Best Practices for Playground Testing
+
+### 1. Test User Intent Varieties
+
+Test the same functionality with different phrasings:
+
+```
+✅ Direct: "Get the weather in Boston"
+✅ Indirect: "I'm wondering about the weather in Boston"
+✅ Context: "I'm traveling to Boston tomorrow, what should I expect?"
+✅ Comparative: "How's the weather in Boston compared to New York?"
+```
+
+### 2. Progressive Complexity
+
+Start simple and gradually increase complexity:
+
+1. **Single tool, simple parameters**
+2. **Single tool, complex parameters** 
+3. **Multiple tools, sequential**
+4. **Multiple tools, parallel**
+5. **Complex workflows with error handling**
+
+### 3. Real-World Scenarios
+
+Test scenarios your actual users might encounter:
+
+```
+E-commerce Testing:
+👤 "I want to buy a laptop under $1000 with good battery life"
+👤 "Show me customer reviews for the MacBook Pro"
+👤 "Track my order #12345"
+
+Analytics Testing:  
+👤 "What were our top performing products last month?"
+👤 "Show me a breakdown of user engagement by region"
+👤 "Create a report on customer satisfaction trends"
+```
+
+### 4. Documentation and Sharing
+
+Save interesting conversations for documentation:
+
+<img src="/images/save-conversation.png" alt="Save Playground Conversation" />
+
+- **Save Test Cases**: Keep successful interaction patterns
+- **Export Conversations**: Share results with your team
+- **Create Examples**: Use playground outputs in documentation
+
+## Integration with Other Inspector Features
+
+### Compliance Validation
+
+Use playground results to validate MCP compliance:
+- Are all tools being called correctly?
+- Do responses match expected schemas?
+- Are errors handled according to spec?
+
+### Performance Monitoring
+
+Combine playground testing with performance monitoring:
+- Which tools are slowest in real conversations?
+- How does response time affect user experience?
+- Are there patterns in tool usage?
+
+### Debugging Integration
+
+Use playground alongside debugging tools:
+- See detailed message flows
+- Analyze error patterns
+- Monitor resource usage
+
+## Next Steps
+
+After mastering the playground:
+
+1. **Automate Testing**: Create automated test suites based on playground scenarios
+2. **User Experience Optimization**: Use insights to improve tool descriptions and error messages
+3. **Performance Tuning**: Optimize slow tools identified through playground testing
+4. **Production Monitoring**: Set up monitoring for the patterns you've validated

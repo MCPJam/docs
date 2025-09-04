@@ -1,0 +1,381 @@
+---
+title: "Debugging & Monitoring"
+description: "Comprehensive debugging tools, logging, and performance monitoring for MCP server development"
+---
+
+MCPJam Inspector provides powerful debugging and monitoring capabilities to help you identify and resolve issues in your MCP server implementation quickly and efficiently.
+
+## Real-Time Message Inspector
+
+### Message Flow Visualization
+
+See all MCP protocol messages flowing between Inspector and your server in real-time:
+
+<img src="/images/message-inspector.png" alt="Real-time Message Inspector" />
+
+The message inspector shows:
+- **Request/Response Pairs**: Matched requests and their responses
+- **Message Types**: Initialize, tools, resources, prompts, notifications
+- **Timestamps**: Precise timing for performance analysis
+- **Message Size**: Payload sizes for bandwidth monitoring
+- **Success/Error Status**: Visual indicators for message outcomes
+
+### Detailed Message Inspection
+
+Click any message to see full details:
+
+```json
+{
+  "id": "msg_123",
+  "method": "tools/call",
+  "params": {
+    "name": "get_weather", 
+    "arguments": {
+      "location": "San Francisco, CA"
+    }
+  },
+  "timestamp": "2024-01-15T10:30:45.123Z",
+  "transport": "stdio",
+  "direction": "outbound",
+  "responseTime": 245
+}
+```
+
+## Comprehensive Logging
+
+### Log Levels
+
+Inspector provides multiple log levels for different debugging needs:
+
+<Tabs>
+  <Tab title="ERROR">
+    Critical errors that prevent normal operation:
+    ```
+    [ERROR] 2024-01-15 10:30:45 - Tool execution failed: get_weather
+    Error: Connection timeout after 30s
+    Stack: at MCPClient.callTool (client.js:123)
+    ```
+  </Tab>
+  
+  <Tab title="WARN">
+    Warnings about potential issues:
+    ```
+    [WARN] 2024-01-15 10:30:45 - Tool response time exceeded 5s threshold
+    Tool: analyze_data (7.2s)
+    Consider optimizing for better user experience
+    ```
+  </Tab>
+  
+  <Tab title="INFO">
+    General operational information:
+    ```
+    [INFO] 2024-01-15 10:30:45 - MCP server connected successfully
+    Transport: STDIO, PID: 12345
+    Available tools: 5, Resources: 3
+    ```
+  </Tab>
+  
+  <Tab title="DEBUG">
+    Detailed debugging information:
+    ```
+    [DEBUG] 2024-01-15 10:30:45 - Processing tool call
+    Input validation: PASSED
+    Schema check: PASSED  
+    Parameter parsing: {location: "San Francisco, CA"}
+    ```
+  </Tab>
+</Tabs>
+
+### Log Filtering and Search
+
+- **Filter by Level**: Show only errors, warnings, or specific log levels
+- **Search Messages**: Full-text search through log messages
+- **Time Range**: Filter logs by time period
+- **Component Filter**: Show logs from specific MCP components
+
+<img src="/images/log-filtering.png" alt="Log Filtering Interface" />
+
+## Performance Monitoring
+
+### Response Time Analysis
+
+Monitor the performance of your MCP server operations:
+
+<img src="/images/performance-charts.png" alt="Performance Monitoring Charts" />
+
+**Key Metrics:**
+- **Average Response Time**: Mean response time across all operations
+- **P95/P99 Latency**: 95th and 99th percentile response times
+- **Throughput**: Operations per second
+- **Error Rate**: Percentage of failed operations
+
+### Performance Breakdown
+
+Detailed breakdown by operation type:
+
+```json
+{
+  "tools": {
+    "get_weather": {
+      "avgResponseTime": "150ms",
+      "p95": "300ms", 
+      "p99": "500ms",
+      "callCount": 245,
+      "errorRate": "0.8%"
+    },
+    "analyze_data": {
+      "avgResponseTime": "2.1s",
+      "p95": "4.2s",
+      "p99": "8.1s", 
+      "callCount": 67,
+      "errorRate": "2.3%"
+    }
+  },
+  "resources": {
+    "user_profile": {
+      "avgResponseTime": "75ms",
+      "p95": "120ms",
+      "p99": "200ms",
+      "accessCount": 156,
+      "cacheHitRate": "85%"
+    }
+  }
+}
+```
+
+## Error Analysis & Troubleshooting
+
+### Common Error Patterns
+
+Inspector automatically categorizes and highlights common error patterns:
+
+<Warning>
+**Schema Validation Errors**: Most common MCP server issues
+</Warning>
+
+```json
+{
+  "errorType": "SCHEMA_VALIDATION",
+  "frequency": "45%", 
+  "examples": [
+    "Missing required parameter 'location' in get_weather",
+    "Invalid parameter type: expected string, got number",
+    "Tool response missing required 'content' field"
+  ],
+  "suggestedFix": "Review your tool schemas and ensure all required fields are present"
+}
+```
+
+<Warning>
+**Connection Errors**: Transport and network issues
+</Warning>
+
+```json
+{
+  "errorType": "CONNECTION_ERROR",
+  "frequency": "23%",
+  "examples": [
+    "STDIO process exited unexpectedly (code 1)",
+    "HTTP connection timeout after 30s",
+    "SSE stream disconnected"
+  ],
+  "suggestedFix": "Check server logs and ensure stable network connection"
+}
+```
+
+### Error Timeline
+
+Visual timeline showing when errors occurred:
+
+<img src="/images/error-timeline.png" alt="Error Timeline Visualization" />
+
+- **Error Clustering**: Identify periods of high error rates  
+- **Error Correlation**: See which errors occur together
+- **Recovery Patterns**: Monitor how quickly errors are resolved
+
+## Advanced Debugging Features
+
+### Request/Response Diff
+
+Compare expected vs actual responses to identify discrepancies:
+
+```diff
+Expected Response:
+{
+  "content": "The weather in San Francisco is sunny, 72°F",
+- "metadata": {
+-   "source": "weather_api", 
+-   "timestamp": "2024-01-15T10:30:45Z"
+- }
+}
+
+Actual Response:  
+{
+  "content": "The weather in San Francisco is sunny, 72°F"
++ // Missing metadata object
+}
+```
+
+### Stack Trace Analysis
+
+For STDIO servers, Inspector captures and analyzes stack traces:
+
+```python
+Traceback (most recent call last):
+  File "server.py", line 45, in get_weather
+    response = weather_api.get_current(location)
+  File "weather_api.py", line 12, in get_current
+    return self._make_request(f"/weather/{location}")
+  File "weather_api.py", line 23, in _make_request
+    raise APIException("Rate limit exceeded")
+APIException: Rate limit exceeded (429)
+```
+
+**Analysis:**
+- **Root Cause**: API rate limiting
+- **Suggested Fix**: Implement request throttling or caching
+- **Similar Errors**: 12 occurrences in the last hour
+
+### Memory and Resource Usage
+
+Monitor your MCP server's resource consumption:
+
+<img src="/images/resource-monitoring.png" alt="Resource Usage Monitoring" />
+
+- **Memory Usage**: Track memory consumption over time
+- **CPU Usage**: Monitor processor utilization
+- **File Handles**: Check for resource leaks
+- **Network Connections**: Monitor active connections
+
+## Debugging Best Practices
+
+### 1. Start with High-Level Monitoring
+
+Begin debugging with overview metrics:
+- Are connections stable?
+- What's the overall error rate?
+- Which operations are slowest?
+
+### 2. Drill Down to Specific Issues
+
+Use filters to focus on specific problems:
+- Filter by error type or severity  
+- Focus on specific time periods
+- Isolate specific tools or resources
+
+### 3. Correlate Across Metrics
+
+Look for patterns across different metrics:
+- Do errors correlate with high response times?
+- Are connection issues causing cascading failures?
+- Does memory usage grow over time?
+
+### 4. Use Inspector's Analysis
+
+Leverage Inspector's built-in analysis:
+- Review suggested fixes for common errors
+- Check error pattern analysis
+- Monitor performance trend analysis
+
+## Debugging Workflows
+
+### Issue Reproduction
+
+1. **Capture Baseline**: Record normal operation metrics
+2. **Reproduce Issue**: Trigger the problematic scenario  
+3. **Compare Metrics**: Identify differences from baseline
+4. **Isolate Variables**: Test with different inputs/configurations
+
+### Performance Optimization
+
+1. **Identify Bottlenecks**: Find slowest operations
+2. **Profile Deep Dive**: Use detailed timing analysis
+3. **Test Optimizations**: Compare before/after metrics
+4. **Validate Improvements**: Ensure fixes don't introduce new issues
+
+### Error Pattern Analysis
+
+1. **Categorize Errors**: Group similar error types
+2. **Find Root Causes**: Trace errors to their source
+3. **Implement Fixes**: Address underlying issues
+4. **Monitor Recovery**: Verify error rates decrease
+
+## Exporting Debug Data
+
+### Log Export
+
+Export logs for external analysis:
+
+```bash
+# Export all logs  
+curl http://localhost:3001/api/logs/export > debug-logs.json
+
+# Export filtered logs
+curl "http://localhost:3001/api/logs/export?level=error&from=2024-01-15" > error-logs.json
+```
+
+### Performance Reports
+
+Generate comprehensive performance reports:
+
+```json
+{
+  "reportPeriod": "2024-01-15 to 2024-01-16",
+  "summary": {
+    "totalRequests": 1247,
+    "avgResponseTime": "245ms",
+    "errorRate": "1.2%",
+    "uptime": "99.8%"
+  },
+  "toolPerformance": [...],
+  "errorAnalysis": [...],
+  "recommendations": [
+    "Consider caching for get_weather tool (called 245 times)",
+    "investigate_data tool needs optimization (avg 8.1s response)"
+  ]
+}
+```
+
+## Integration with External Tools
+
+### Monitoring Integration
+
+Send metrics to external monitoring systems:
+
+```yaml
+# Prometheus integration
+- job_name: 'mcpjam-inspector'
+  static_configs:
+    - targets: ['localhost:3001']
+  metrics_path: '/metrics'
+```
+
+### Alerting
+
+Set up alerts for critical issues:
+
+```json
+{
+  "alerts": [
+    {
+      "name": "High Error Rate",
+      "condition": "error_rate > 5%",
+      "action": "slack://alerts-channel"
+    },
+    {
+      "name": "Slow Response Time", 
+      "condition": "p95_response_time > 5000ms",
+      "action": "email://dev-team@company.com"
+    }
+  ]
+}
+```
+
+## Next Steps
+
+With comprehensive debugging and monitoring in place:
+
+1. **Set Up Alerts**: Configure monitoring for production environments
+2. **Create Dashboards**: Build custom dashboards for your team
+3. **Automate Testing**: Set up continuous MCP server testing
+4. **Performance Optimization**: Use insights to optimize your server

@@ -1,0 +1,561 @@
+---
+title: "Troubleshooting"
+description: "Common issues and solutions when using MCPJam Inspector"
+---
+
+This troubleshooting guide covers the most common issues encountered when using MCPJam Inspector and provides step-by-step solutions to resolve them.
+
+## Connection Issues
+
+### STDIO Connection Problems
+
+<Accordion title="Server process exits immediately">
+  **Error**: `Process exited with code 1 immediately after start`
+  
+  **Common Causes:**
+  - Missing dependencies or modules
+  - Python/Node.js version incompatibility  
+  - Syntax errors in server code
+  - Missing environment variables
+  
+  **Solutions:**
+  1. Test your server command manually:
+     ```bash
+     # Test the exact command Inspector would run
+     python /path/to/server.py
+     
+     # Check for errors in the output
+     ```
+  
+  2. Verify dependencies are installed:
+     ```bash
+     # For Python servers
+     pip install -r requirements.txt
+     
+     # For Node.js servers
+     npm install
+     ```
+  
+  3. Check Python/Node.js versions:
+     ```bash
+     python --version  # Should be 3.8+
+     node --version    # Should be 18+
+     ```
+  
+  4. Add error logging to your server:
+     ```python
+     import logging
+     logging.basicConfig(level=logging.DEBUG)
+     ```
+</Accordion>
+
+<Accordion title="Permission denied errors">
+  **Error**: `EACCES: permission denied`
+  
+  **Solutions:**
+  1. Make script executable:
+     ```bash
+     chmod +x /path/to/server.py
+     chmod +x /path/to/server.js
+     ```
+  
+  2. Use interpreter directly:
+     ```bash
+     # Instead of: ./server.py
+     # Use: python server.py
+     ```
+  
+  3. Check file ownership:
+     ```bash
+     ls -la /path/to/server.py
+     chown $USER:$USER server.py  # if needed
+     ```
+</Accordion>
+
+<Accordion title="Module/package not found">
+  **Error**: `ModuleNotFoundError` or `Cannot find module`
+  
+  **Solutions:**
+  1. Verify package installation:
+     ```bash
+     # Python
+     pip list | grep package-name
+     pip install missing-package
+     
+     # Node.js
+     npm list package-name
+     npm install missing-package
+     ```
+  
+  2. Use virtual environments:
+     ```bash
+     # Python
+     source venv/bin/activate
+     python server.py
+     
+     # Node.js
+     npm install --production
+     ```
+  
+  3. Check Python path:
+     ```python
+     import sys
+     print(sys.path)
+     sys.path.append('/path/to/your/modules')
+     ```
+</Accordion>
+
+### HTTP Connection Problems
+
+<Accordion title="Connection refused">
+  **Error**: `ECONNREFUSED` or `Connection refused`
+  
+  **Solutions:**
+  1. Verify server is running:
+     ```bash
+     curl http://localhost:8080/health
+     netstat -an | grep :8080
+     ```
+  
+  2. Check firewall settings:
+     ```bash
+     # Linux
+     sudo ufw status
+     sudo ufw allow 8080
+     
+     # macOS
+     sudo pfctl -sr | grep 8080
+     ```
+  
+  3. Verify correct port and host:
+     ```bash
+     # Server might be running on different port
+     ps aux | grep server
+     lsof -i :8080
+     ```
+</Accordion>
+
+<Accordion title="SSL/TLS certificate errors">
+  **Error**: `SSL certificate problem` or `CERT_UNTRUSTED`
+  
+  **Solutions:**
+  1. For development, disable SSL verification (temporary):
+     ```json
+     {
+       "url": "https://localhost:8443",
+       "sslVerify": false
+     }
+     ```
+  
+  2. Add certificate to trusted store:
+     ```bash
+     # macOS
+     security add-trusted-cert -d -r trustRoot -k ~/Library/Keychains/login.keychain cert.pem
+     
+     # Linux
+     sudo cp cert.pem /usr/local/share/ca-certificates/
+     sudo update-ca-certificates
+     ```
+  
+  3. Use proper certificates for production:
+     ```bash
+     # Let's Encrypt example
+     certbot --nginx -d your-domain.com
+     ```
+</Accordion>
+
+### Authentication Issues
+
+<Accordion title="API key rejected">
+  **Error**: `401 Unauthorized` or `Invalid API key`
+  
+  **Solutions:**
+  1. Verify API key format and validity:
+     ```bash
+     # Test API key manually
+     curl -H "Authorization: Bearer your-api-key" \
+          https://api.openai.com/v1/models
+     ```
+  
+  2. Check for extra spaces or characters:
+     ```json
+     {
+       "apiKey": "sk-..." // No spaces before/after
+     }
+     ```
+  
+  3. Verify API key permissions:
+     - Check if key has required scopes
+     - Ensure key isn't expired
+     - Verify billing/usage limits
+</Accordion>
+
+<Accordion title="OAuth flow failures">
+  **Error**: OAuth redirect or token exchange failures
+  
+  **Solutions:**
+  1. Verify redirect URI matches exactly:
+     ```json
+     {
+       "redirectUri": "http://localhost:3001/oauth/callback"
+     }
+     ```
+  
+  2. Check OAuth application configuration:
+     - Correct client ID and secret
+     - Proper scopes requested
+     - Valid redirect URIs registered
+  
+  3. Debug OAuth flow:
+     ```bash
+     # Check OAuth state parameter
+     # Verify authorization code receipt  
+     # Test token exchange manually
+     ```
+</Accordion>
+
+## Performance Issues
+
+### Slow Response Times
+
+<Accordion title="Tool calls taking too long">
+  **Symptoms**: Tool responses taking > 5 seconds
+  
+  **Diagnostics:**
+  1. Check Inspector's performance metrics
+  2. Monitor server resource usage
+  3. Analyze network latency
+  
+  **Solutions:**
+  1. Add caching to frequently called tools:
+     ```python
+     from functools import lru_cache
+     
+     @lru_cache(maxsize=128)
+     def get_weather(location):
+         # Cached for repeated calls
+         return fetch_weather(location)
+     ```
+  
+  2. Optimize database queries:
+     ```python
+     # Use connection pooling
+     # Add proper indexes
+     # Limit result sets
+     ```
+  
+  3. Implement request timeouts:
+     ```python
+     import requests
+     
+     response = requests.get(
+         url, 
+         timeout=10  # 10 second timeout
+     )
+     ```
+</Accordion>
+
+<Accordion title="Memory usage growing">
+  **Symptoms**: Inspector or server using increasing memory
+  
+  **Solutions:**
+  1. Monitor memory usage:
+     ```bash
+     # Linux/macOS
+     ps -o pid,ppid,rss,vsz,command -p PID
+     
+     # Or use htop/top
+     htop -p PID
+     ```
+  
+  2. Check for memory leaks in server:
+     ```python
+     import gc
+     import psutil
+     
+     def log_memory_usage():
+         process = psutil.Process()
+         memory = process.memory_info().rss / 1024 / 1024  # MB
+         print(f"Memory usage: {memory:.1f} MB")
+         print(f"Objects in memory: {len(gc.get_objects())}")
+     ```
+  
+  3. Implement cleanup:
+     ```python
+     # Close connections properly
+     # Clear caches periodically
+     # Use context managers
+     ```
+</Accordion>
+
+### High CPU Usage
+
+<Accordion title="CPU usage constantly high">
+  **Solutions:**
+  1. Profile your server code:
+     ```python
+     import cProfile
+     
+     profiler = cProfile.Profile()
+     profiler.enable()
+     # Your code here
+     profiler.disable()
+     profiler.print_stats()
+     ```
+  
+  2. Check for infinite loops or blocking operations:
+     ```python
+     # Use async/await for I/O operations
+     # Implement proper error handling
+     # Add rate limiting
+     ```
+  
+  3. Optimize algorithms and data structures:
+     ```python
+     # Use appropriate data structures
+     # Implement efficient algorithms  
+     # Cache expensive computations
+     ```
+</Accordion>
+
+## LLM Playground Issues
+
+### Model Configuration Problems
+
+<Accordion title="Model not responding">
+  **Symptoms**: No response from AI model in playground
+  
+  **Solutions:**
+  1. Check API credentials:
+     ```json
+     {
+       "provider": "openai",
+       "apiKey": "sk-...",  // Valid key
+       "organization": "org-..." // If required
+     }
+     ```
+  
+  2. Verify model availability:
+     ```bash
+     # Test API endpoint directly
+     curl https://api.openai.com/v1/models \
+       -H "Authorization: Bearer $OPENAI_API_KEY"
+     ```
+  
+  3. Check usage limits and billing:
+     - Verify account has available credits
+     - Check rate limiting status
+     - Review billing/usage dashboard
+</Accordion>
+
+<Accordion title="Tools not being called by AI">
+  **Symptoms**: AI doesn't use available MCP tools
+  
+  **Solutions:**
+  1. Improve tool descriptions:
+     ```json
+     {
+       "name": "get_weather",
+       "description": "Get current weather conditions and forecast for any city or location worldwide. Use this when users ask about weather, temperature, or atmospheric conditions."
+     }
+     ```
+  
+  2. Add parameter examples:
+     ```json
+     {
+       "parameters": {
+         "location": {
+           "type": "string",
+           "description": "City name and country/state",
+           "examples": ["New York, NY", "London, UK"]
+         }
+       }
+     }
+     ```
+  
+  3. Test with explicit requests:
+     ```
+     Instead of: "How's the weather?"
+     Try: "Get the weather in San Francisco"
+     ```
+</Accordion>
+
+### Ollama Issues
+
+<Accordion title="Ollama connection failed">
+  **Error**: Cannot connect to Ollama server
+  
+  **Solutions:**
+  1. Verify Ollama is running:
+     ```bash
+     ollama list
+     ollama serve  # If not running
+     ```
+  
+  2. Check default port:
+     ```bash
+     curl http://localhost:11434/api/tags
+     netstat -an | grep 11434
+     ```
+  
+  3. Pull required model:
+     ```bash
+     ollama pull llama3.2
+     ollama pull codellama
+     ```
+</Accordion>
+
+## Data and Configuration Issues
+
+### Configuration Problems
+
+<Accordion title="Settings not persisting">
+  **Symptoms**: Configuration resets after restart
+  
+  **Solutions:**
+  1. Check file permissions:
+     ```bash
+     # Config file should be writable
+     ls -la ~/.config/mcpjam-inspector/
+     chmod 644 config.json
+     ```
+  
+  2. Verify storage location:
+     ```javascript
+     // Check browser localStorage
+     localStorage.getItem('mcpjam-config')
+     
+     // Or file system config
+     ~/.config/mcpjam-inspector/config.json
+     ```
+  
+  3. Clear corrupted configuration:
+     ```bash
+     rm ~/.config/mcpjam-inspector/config.json
+     # Restart Inspector to recreate defaults
+     ```
+</Accordion>
+
+<Accordion title="Invalid configuration format">
+  **Error**: Configuration file parsing errors
+  
+  **Solutions:**
+  1. Validate JSON format:
+     ```bash
+     # Check JSON syntax
+     python -m json.tool config.json
+     jq . config.json
+     ```
+  
+  2. Reset to defaults:
+     ```json
+     {
+       "servers": [],
+       "aiProviders": {},
+       "ui": {
+         "theme": "light"
+       }
+     }
+     ```
+  
+  3. Backup configuration:
+     ```bash
+     cp config.json config.json.backup
+     ```
+</Accordion>
+
+## Browser and UI Issues
+
+### Interface Problems
+
+<Accordion title="UI not loading or showing errors">
+  **Solutions:**
+  1. Clear browser cache:
+     - Chrome: Ctrl/Cmd + Shift + R
+     - Firefox: Ctrl/Cmd + F5
+     - Safari: Cmd + Option + R
+  
+  2. Check browser console:
+     - F12 → Console tab
+     - Look for JavaScript errors
+     - Check network requests
+  
+  3. Try different browser:
+     - Test in incognito/private mode
+     - Try different browser entirely
+     - Check browser compatibility
+</Accordion>
+
+<Accordion title="WebSocket connection failures">
+  **Error**: Real-time updates not working
+  
+  **Solutions:**
+  1. Check WebSocket support:
+     ```javascript
+     // Browser console
+     console.log('WebSocket' in window);
+     ```
+  
+  2. Verify port accessibility:
+     ```bash
+     # Test WebSocket endpoint
+     wscat -c ws://localhost:3001/ws
+     ```
+  
+  3. Check proxy/firewall settings:
+     - Corporate firewalls may block WebSockets
+     - Try different port
+     - Use HTTPS if available
+</Accordion>
+
+## Getting More Help
+
+### Enable Debug Logging
+
+```bash
+# Environment variable
+export DEBUG=mcpjam:*
+
+# Or command line
+npx @mcpjam/inspector@latest --debug
+```
+
+### Collect Diagnostic Information
+
+Before reporting issues, collect:
+
+1. **Version Information**:
+   ```bash
+   npx @mcpjam/inspector@latest --version
+   node --version
+   npm --version
+   ```
+
+2. **Error Logs**:
+   - Browser console errors
+   - Server logs
+   - Inspector debug output
+
+3. **Configuration**:
+   - Server configuration (sanitized)
+   - AI provider settings (without API keys)
+   - Environment variables
+
+### Community Support
+
+- **Discord**: [Join MCPJam Community](https://discord.gg/JEnDtz8X6z)
+- **GitHub Issues**: [Report bugs](https://github.com/MCPJam/inspector/issues)
+- **Documentation**: Check related documentation pages
+
+### Creating Bug Reports
+
+When reporting issues, include:
+
+1. **Steps to reproduce**
+2. **Expected behavior** 
+3. **Actual behavior**
+4. **Environment details** (OS, Node version, etc.)
+5. **Relevant logs** (with sensitive data removed)
+6. **Screenshots** if applicable
+
+This helps the maintainers understand and fix issues quickly.

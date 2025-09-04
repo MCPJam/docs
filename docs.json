@@ -1,68 +1,54 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "maple",
+  "name": "MCPJam Inspector",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#EF5B25",
+    "light": "#FF7A4D",
+    "dark": "#D44A1A"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/mcp_jam.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Inspector",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Inspector",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "getting-started",
+              "installation"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Features",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              "inspector/mcp-compliance",
+              "inspector/transports",
+              "inspector/llm-playground",
+              "inspector/debugging"
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Guides",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "inspector/connecting-servers",
+              "inspector/using-playground",
+              "inspector/troubleshooting"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "CLI Reference",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "CLI Documentation",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "cli/overview",
+              "cli/commands",
+              "cli/examples"
             ]
           }
         ]
@@ -71,39 +57,34 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "anchor": "Discord",
+          "href": "https://discord.gg/JEnDtz8X6z",
+          "icon": "discord"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
+          "anchor": "GitHub",
+          "href": "https://github.com/MCPJam/inspector",
+          "icon": "github"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Website",
+          "href": "https://mcpjam.com",
+          "icon": "globe"
         }
       ]
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/mcp_jam_light.png",
+    "dark": "/logo/mcp_jam_dark.png"
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/MCPJam/inspector"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
+    ]
   },
   "contextual": {
     "options": [
@@ -119,9 +100,9 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "discord": "https://discord.gg/JEnDtz8X6z",
+      "github": "https://github.com/MCPJam/inspector",
+      "website": "https://mcpjam.com"
     }
   }
 }

@@ -17,8 +17,7 @@
             "group": "Inspector",
             "pages": [
               "index",
-              "getting-started",
-              "installation"
+              "getting-started"
             ]
           },
           {

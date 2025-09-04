@@ -1,0 +1,164 @@
+## Start inspector with STDIO commands
+
+You can start up the server and configure a STDIO server connection simulatenously
+
+<Tabs>
+  <Tab title="Python Server">
+    ```bash
+    # Starts MCPJam inspector with a FastMCP server
+    npx @mcpjam/inspector@latest uv run fastmcp run /path/to/your/server.py
+    ```
+  </Tab>
+  
+  <Tab title="Node.js Server">
+    ```bash
+    # NPX package
+    npx @mcpjam/inspector@latest npx -y your-mcp-package
+
+    # Direct Node.js execution
+    npx @mcpjam/inspector@latest node /path/to/your/server.js
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+**Use Absolute Paths**: Always use absolute file paths (e.g., `/Users/yourname/project/server.py`) to avoid path resolution issues.
+</Warning>
+
+## Method 2: UI Configuration
+
+For more control over your server connection:
+
+### Step 1: Launch Inspector
+
+```bash
+npx @mcpjam/inspector@latest
+```
+
+Inspector will start and display:
+```
+🚀 MCP Inspector is now running successfully!
+
+📱 Access your application at: http://localhost:3001
+```
+
+### Step 2: Connect Your Server
+
+1. **Open Inspector**: Navigate to `http://localhost:3001`
+2. **Go to MCP Servers**: Click the "MCP Servers" tab  
+3. **Add Server**: Click "Add Server" button
+4. **Configure Connection**:
+   - **Name**: Give your server a descriptive name
+   - **Transport**: Select "STDIO" for local servers
+   - **Command**: Enter your server command (e.g., `python`)
+   - **Arguments**: Add your server path and any arguments
+
+## Method 3: With AI Model Testing
+
+Test your MCP server with a local AI model using Ollama:
+
+### Step 1: Quick Ollama Setup
+
+```bash
+# This command will:
+# 1. Check if Ollama is installed
+# 2. Pull the specified model  
+# 3. Start Ollama server
+# 4. Launch Inspector with Ollama configured
+npx @mcpjam/inspector@latest --ollama llama3.2
+```
+
+### Step 2: Connect Your MCP Server
+
+Once Inspector is running:
+1. Add your MCP server using the UI (as described in Method 2)
+2. Go to the "LLM Playground" tab
+3. Start chatting with the AI model that now has access to your MCP tools!
+
+## Verify Your Setup
+
+Once connected, you should see:
+
+### ✅ Server Status
+- Green status indicator showing "Connected"
+- Server information (transport type, response time)
+
+### ✅ Available Capabilities  
+- **Tools**: List of tools your server provides
+- **Resources**: Available resources  
+- **Prompts**: Any prompts your server supports
+
+### ✅ Tool Testing
+Click on any tool to test it manually
+
+## Common Quick Start Issues
+
+<AccordionGroup>
+  <Accordion title="Command not found">
+    **Error**: `python: command not found` or similar
+    
+    **Solutions**:
+    - Use absolute path: `/usr/bin/python3 /path/to/server.py`
+    - Check your PATH: `which python3`
+    - Install missing interpreter
+  </Accordion>
+  
+  <Accordion title="Permission denied">
+    **Error**: `EACCES: permission denied`
+    
+    **Solutions**:
+    - Make file executable: `chmod +x server.py`
+    - Use interpreter directly: `python server.py` instead of `./server.py`
+  </Accordion>
+  
+  <Accordion title="Port already in use">
+    **Error**: `EADDRINUSE: address already in use`
+    
+    **Solutions**:
+    - Use different port: `npx @mcpjam/inspector@latest --port 4000`
+    - Kill existing process: `lsof -ti:3001 | xargs kill`
+  </Accordion>
+  
+  <Accordion title="Ollama not found">
+    **Error**: `Ollama is not installed`
+    
+    **Solutions**:
+    - Install Ollama: Visit [ollama.ai/download](https://ollama.ai/download)
+    - Verify installation: `ollama --version`
+  </Accordion>
+</AccordionGroup>
+
+## What's Next?
+
+Now that you have Inspector running:
+
+<CardGroup cols={2}>
+  <Card
+    title="Test MCP Compliance"
+    icon="shield-check"
+    href="/inspector/mcp-compliance"
+  >
+    Validate your server against the full MCP specification
+  </Card>
+  <Card
+    title="Use the LLM Playground"
+    icon="robot"
+    href="/inspector/llm-playground"
+  >
+    Test realistic AI interactions with your server
+  </Card>
+  <Card
+    title="Debug Your Server"
+    icon="bug"
+    href="/inspector/debugging"
+  >
+    Use comprehensive debugging tools to identify issues
+  </Card>
+  <Card
+    title="Learn CLI Options"
+    icon="terminal"  
+    href="/cli/overview"
+  >
+    Explore advanced CLI commands and configurations
+  </Card>
+</CardGroup>

@@ -28,6 +28,7 @@
               "inspector/llm-playground",
               "inspector/tools-prompts-resources",
               "inspector/debugging",
+              "inspector/guided-oauth",  
               "inspector/mcp-evals"
             ]
           }

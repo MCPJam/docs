@@ -11,30 +11,24 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Inspector",
+        "tab": "MCPJam Inspector",
         "groups": [
           {
-            "group": "Inspector",
+            "group": "Getting started",
             "pages": [
               "index",
-              "getting-started"
+              "getting-started",
+              "installation"
             ]
           },
           {
             "group": "Features",
             "pages": [
-              "inspector/mcp-compliance",
-              "inspector/transports",
-              "inspector/llm-playground",
-              "inspector/debugging"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
               "inspector/connecting-servers",
-              "inspector/using-playground",
-              "inspector/troubleshooting"
+              "inspector/llm-playground",
+              "inspector/tools-prompts-resources",
+              "inspector/debugging",
+              "inspector/mcp-evals"
             ]
           }
         ]

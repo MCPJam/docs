@@ -1,392 +1,72 @@
 ---
-title: "Connecting MCP Servers"
-description: "Step-by-step guide to connecting your MCP servers using different transport methods"
+title: "Multi-server connections"
+description: "Connect to multiple MCP servers with different transport methods"
+icon: "Plug"
 ---
 
-This guide walks you through connecting your MCP servers to MCPJam Inspector using the different supported transport methods. Choose the approach that best fits your development workflow.
+You can connect to MCP servers using all transports: STDIO, SSE, and Streamable HTTP. With OAuth 2 and Dynamic Client Registration (DCR) support. 
 
-## Quick Connection via CLI
+## Manage connections 
 
-The fastest way to test your MCP server is to launch Inspector with your server command:
+You can connect to multiple MCP servers simultaneously. To manage connections, go to the "MCP Servers" tab in the MCPJam inspector.
 
-### Python Servers
+<Frame>
+<img
+  className="block"
+  src="/images/connection/multiple.png"
+  alt="Multiple"
+  width="300"
+/>
+</Frame>
 
-```bash
-# FastMCP server
-npx @mcpjam/inspector@latest uv run fastmcp run /Users/yourname/project/server.py
+- Toggle MCP servers to enable or temporarily deactivate a server. 
+- Hit the 3 dots. You can reconnect, edit, or disconnect to a server.
 
-# Standard Python server
-npx @mcpjam/inspector@latest python /Users/yourname/project/server.py
+## STDIO servers
 
-# With virtual environment
-npx @mcpjam/inspector@latest ./venv/bin/python server.py
-```
-
-### Node.js Servers
-
-```bash
-# Direct execution
-npx @mcpjam/inspector@latest node /Users/yourname/project/server.js
-
-# NPX package
-npx @mcpjam/inspector@latest npx -y your-mcp-server
-
-# With arguments
-npx @mcpjam/inspector@latest node server.js --config production.json
-```
-
-<Note>
-**Important**: Always use absolute paths when specifying server commands to avoid path resolution issues.
-</Note>
-
-## UI-Based Connection
-
-For more control and configuration, use Inspector's web interface:
-
-### Step 1: Launch Inspector
+Connect to STDIO with commands. Commands vary based on what language your MCP server is built with. For example, connecting to an MCP server built with Node might look like: 
 
 ```bash
-npx @mcpjam/inspector@latest
+node /path/to/your/server.js
 ```
 
-Navigate to `http://localhost:3001` (or your custom port).
+<Info>
+For local development, always use absolute paths (e.g., `/Users/yourname/project/server.py`) to avoid path resolution issues.
+</Info>
 
-### Step 2: Access MCP Servers Tab
+<Frame>
+<img
+  className="block"
+  src="/images/connection/stdio.png"
+  alt="STDIO"
+  width="300"
+/>
+</Frame>
 
-<img src="/images/servers-tab.png" alt="MCP Servers Tab" />
+### Environment variables
 
-1. Click on the **"MCP Servers"** tab in the navigation
-2. Click **"Add Server"** to start the configuration process
+You can configure environment variables with STDIO. Click "Add Variable" in the Environment Variables section. This is often used to pass dynamic values like API tokens to a STDIO server. 
 
-### Step 3: Choose Transport Method
 
-<img src="/images/transport-selection.png" alt="Transport Method Selection" />
+## SSE / Streamable HTTP servers
 
-Select the transport method that matches your server implementation:
+Connect to SSE and Streamable HTTP servers. To do this, click the transport dropdown and select `SSE/HTTP`. They connect the same way: pass in a URL. 
 
-<Tabs>
-  <Tab title="STDIO">
-    Best for local development and testing. Uses process pipes for communication.
-    
-    **Required Fields:**
-    - **Command**: The command to execute your server
-    - **Arguments**: Any command-line arguments (optional)
-    - **Working Directory**: Directory to run the command from (optional)
-    
-    **Example Configuration:**
-    ```json
-    {
-      "name": "My Weather Server",
-      "transport": "stdio",
-      "command": "python",
-      "args": ["/Users/dev/weather-server/main.py", "--verbose"],
-      "cwd": "/Users/dev/weather-server"
-    }
-    ```
-  </Tab>
-  
-  <Tab title="HTTP">
-    For servers deployed as HTTP services. Uses standard REST API calls.
-    
-    **Required Fields:**
-    - **URL**: The HTTP endpoint of your MCP server
-    - **Headers**: Custom headers for authentication (optional)
-    
-    **Example Configuration:**
-    ```json
-    {
-      "name": "Production API Server",
-      "transport": "http", 
-      "url": "https://api.myservice.com/mcp",
-      "headers": {
-        "Authorization": "Bearer your-api-token",
-        "Content-Type": "application/json"
-      }
-    }
-    ```
-  </Tab>
-  
-  <Tab title="SSE">
-    For servers supporting Server-Sent Events. Provides real-time bidirectional communication.
-    
-    **Required Fields:**
-    - **URL**: Base URL of your SSE-enabled server
-    - **Event Endpoint**: Path for receiving events (optional)
-    - **Send Endpoint**: Path for sending messages (optional)
-    
-    **Example Configuration:**
-    ```json
-    {
-      "name": "Real-time Analytics Server",
-      "transport": "sse",
-      "url": "https://analytics.myservice.com",
-      "eventEndpoint": "/events",
-      "sendEndpoint": "/messages"
-    }
-    ```
-  </Tab>
-</Tabs>
+SSE server URLs typically end with `/sse` and Streamable HTTP servers typically end with `/mcp`. 
 
-## Connection Verification
+<Frame>
+<img
+  className="block"
+  src="/images/connection/streamable.png"
+  alt="Streamable HTTP"
+  width="300"
+/>
+</Frame>
 
-Once configured, Inspector will attempt to connect to your server:
+### OAuth 2
 
-### Successful Connection
+MCPJam is compliant with the MCP OAuth spec and Dynamic Client Registration (DCR). You can: 
+1. Choose `No Authentication` 
+2. Choose `Bearer Token`. Use this if you already have an API token and don't need to go through DCR. 
+3. Choose `OAuth 2.0`. This will take you through [MCP Authorization](https://modelcontextprotocol.io/specification/draft/basic/authorization) to fetch a bearer token. You can also configure OAuth Scopes or custom OAuth credentials. 
 
-<img src="/images/connection-success.png" alt="Successful Connection" />
-
-You'll see:
-- ✅ **Green status indicator**
-- **Server capabilities** (tools, resources, prompts)
-- **Connection details** (transport type, response time)
-- **Available tools and resources** listed
-
-### Connection Issues
-
-<img src="/images/connection-error.png" alt="Connection Error" />
-
-If connection fails, you'll see:
-- ❌ **Red status indicator** 
-- **Error message** with specific details
-- **Suggested fixes** based on the error type
-
-## Common Connection Issues
-
-### STDIO Connection Problems
-
-<Accordion title="Command not found">
-  **Error**: `Command 'python' not found`
-  
-  **Solutions:**
-  - Use absolute path: `/usr/bin/python3`
-  - Check PATH environment variable
-  - Verify command exists: `which python`
-  
-  ```bash
-  # Test command manually
-  which python3
-  /usr/bin/python3 /path/to/server.py
-  ```
-</Accordion>
-
-<Accordion title="Permission denied">
-  **Error**: `Permission denied: /path/to/server.py`
-  
-  **Solutions:**
-  - Make file executable: `chmod +x server.py`
-  - Use interpreter directly: `python server.py`
-  - Check file ownership and permissions
-  
-  ```bash
-  # Fix permissions
-  chmod +x /path/to/server.py
-  
-  # Or use interpreter
-  python /path/to/server.py
-  ```
-</Accordion>
-
-<Accordion title="Module not found">
-  **Error**: `ModuleNotFoundError: No module named 'fastmcp'`
-  
-  **Solutions:**
-  - Install missing dependencies: `pip install fastmcp`
-  - Use virtual environment: `./venv/bin/python`
-  - Check Python path and environment
-  
-  ```bash
-  # Activate virtual environment first
-  source venv/bin/activate
-  pip install -r requirements.txt
-  ```
-</Accordion>
-
-### HTTP Connection Problems
-
-<Accordion title="Connection refused">
-  **Error**: `Connection refused at http://localhost:8080`
-  
-  **Solutions:**
-  - Ensure server is running: `curl http://localhost:8080/health`
-  - Check port number and URL
-  - Verify firewall settings
-  
-  ```bash
-  # Test server directly
-  curl -X POST http://localhost:8080/mcp \
-    -H "Content-Type: application/json" \
-    -d '{"method": "ping"}'
-  ```
-</Accordion>
-
-<Accordion title="Authentication failed">
-  **Error**: `401 Unauthorized`
-  
-  **Solutions:**
-  - Check API token/key validity
-  - Verify authentication headers
-  - Confirm token has required permissions
-  
-  ```json
-  {
-    "headers": {
-      "Authorization": "Bearer your-valid-token",
-      "X-API-Key": "your-api-key"
-    }
-  }
-  ```
-</Accordion>
-
-### SSE Connection Problems
-
-<Accordion title="Events not received">
-  **Error**: Events stream connected but no messages received
-  
-  **Solutions:**
-  - Verify server sends proper SSE format
-  - Check CORS configuration
-  - Ensure proper Content-Type headers
-  
-  ```javascript
-  // Server should send properly formatted SSE
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.write(`data: ${JSON.stringify(message)}\n\n`);
-  ```
-</Accordion>
-
-## Advanced Configuration
-
-### Environment Variables
-
-Configure connection behavior using environment variables:
-
-```bash
-# Connection timeouts
-export MCP_CONNECT_TIMEOUT=30000    # 30 seconds
-export MCP_REQUEST_TIMEOUT=60000    # 60 seconds
-
-# Retry configuration  
-export MCP_MAX_RETRIES=3
-export MCP_RETRY_DELAY=1000         # 1 second
-
-# Logging
-export MCP_LOG_LEVEL=debug
-```
-
-### Connection Profiles
-
-Save common server configurations as profiles:
-
-```json
-{
-  "profiles": {
-    "development": {
-      "name": "Dev Weather Server",
-      "transport": "stdio",
-      "command": "python",
-      "args": ["server.py", "--debug"],
-      "env": {
-        "DEBUG": "true",
-        "API_KEY": "dev-key"
-      }
-    },
-    "staging": {
-      "name": "Staging API",
-      "transport": "http", 
-      "url": "https://staging.api.com/mcp",
-      "headers": {
-        "Authorization": "Bearer staging-token"
-      }
-    }
-  }
-}
-```
-
-### Load Balancing (HTTP/SSE)
-
-Configure multiple server endpoints for load balancing:
-
-```json
-{
-  "name": "Load Balanced Servers",
-  "transport": "http",
-  "endpoints": [
-    "https://server1.api.com/mcp",
-    "https://server2.api.com/mcp", 
-    "https://server3.api.com/mcp"
-  ],
-  "loadBalanceStrategy": "round-robin"
-}
-```
-
-## Testing Your Connection
-
-Once connected, verify everything works correctly:
-
-### 1. Check Server Capabilities
-
-<img src="/images/server-capabilities.png" alt="Server Capabilities View" />
-
-Verify that Inspector correctly detects:
-- **Available tools** with proper schemas
-- **Resources** and their types
-- **Prompts** and templates
-- **Authentication** methods supported
-
-### 2. Test Tool Calls
-
-Use the **Tools** tab to manually test tool execution:
-
-```json
-{
-  "tool": "get_weather",
-  "parameters": {
-    "location": "San Francisco, CA"
-  }
-}
-```
-
-### 3. Access Resources
-
-Test resource access through the **Resources** tab:
-
-```json
-{
-  "resource": "user://profile/123",
-  "method": "GET"
-}
-```
-
-### 4. Try the LLM Playground
-
-Use the [LLM Playground](/inspector/llm-playground) to test natural language interactions with your server.
-
-## Multiple Server Connections
-
-Inspector supports connecting to multiple MCP servers simultaneously:
-
-<img src="/images/multiple-servers.png" alt="Multiple Server Connections" />
-
-### Benefits of Multiple Connections
-
-- **Compare Implementations**: Test different versions side-by-side
-- **Composite Services**: Use tools from multiple servers together
-- **Fallback Testing**: Test failover scenarios
-- **Load Testing**: Distribute load across multiple instances
-
-### Managing Multiple Servers
-
-- **Server Grouping**: Organize servers by project or environment
-- **Bulk Operations**: Start/stop multiple servers at once
-- **Unified Monitoring**: See metrics across all connected servers
-- **Cross-Server Testing**: Use tools from different servers in the playground
-
-## Next Steps
-
-With your server connected:
-
-1. **Validate Implementation**: Use [MCP Compliance Testing](/inspector/mcp-compliance) to ensure full spec compliance
-2. **Debug Issues**: Leverage [Debugging Tools](/inspector/debugging) to identify and fix problems
-3. **Test with AI**: Use the [LLM Playground](/inspector/llm-playground) to test real-world interactions
-4. **Monitor Performance**: Set up monitoring and alerting for production use

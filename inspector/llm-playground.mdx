@@ -1,122 +1,81 @@
 ---
 title: "LLM Playground"
-description: "Test your MCP server with real AI models using the integrated chat playground"
+description: "Test your MCP server's behavior against various LLMs"
+icon: "Robot"
 ---
 
-The LLM Playground is one of MCPJam Inspector's most powerful features, allowing you to test how your MCP server behaves with real AI models in a realistic chat environment. This helps you validate that your tools and resources work correctly in actual usage scenarios.
+Use the LLM playground to test your server against different LLMs. This is helpful to simulate how LLMs interpret your server and test for hallucinations. 
 
-## Supported AI Providers
+The playground is also great for simulating agent behaviors. You can customize the system prompt, swap models, and configure system prompts and temperature as if you would building an agent. 
+
+<Frame>
+<img
+  className="block"
+  src="/images/playground/llm-playground.png"
+  alt="MCPJam Inspector Logo"
+  width="300"
+/>
+</Frame>
+
+## Set up LLM Playground
+You need to set up at least one LLM to use the playground. Go to the settings tab in the inspector and follow instructions from there. 
 
 ### OpenAI
-Test with industry-leading models including GPT-4 and GPT-3.5:
 
-- **GPT-4**: Best for complex reasoning and tool usage
-- **GPT-3.5 Turbo**: Fast and cost-effective for most testing
-- **GPT-4 Turbo**: Optimized for speed and efficiency
+Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys). 
 
-### Anthropic Claude
-Leverage Claude's advanced reasoning capabilities:
+`gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-5`, `gpt-4.1`, `gpt-4.1-mini`, `gpt-4.1-nano`, `gpt-3.5-turbo`,`o3-mini`, `o3`, `o4-mini`, `o1`
 
-- **Claude 3 Opus**: Most capable model for complex tasks
-- **Claude 3 Sonnet**: Balanced performance and speed
-- **Claude 3 Haiku**: Fast responses for simple interactions
+### Claude (Anthropic)
+Get an API key from [Anthropic Console](https://console.anthropic.com/). 
 
-### DeepSeek AI
-Test with specialized coding and reasoning models:
+`claude-opus-4-0`, `claude-sonnet-4-0`, `claude-3-7-sonnet-latest`, `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest`
 
-- **DeepSeek R1**: Optimized for reasoning and problem-solving
-- **DeepSeek Coder**: Specialized for code-related tasks
-- **Custom Models**: Support for custom DeepSeek deployments
+### Gemini 
+Get an API key from [Google AI Studio](https://aistudio.google.com/)
 
-### Ollama (Local Models)
-Run models locally for privacy and offline testing:
+`gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-2.0-flash-exp`, `gemini-1.5-pro`, `gemini-1.5-pro-002`, `gemini-1.5-flash`, `gemini-1.5-flash-002`, `gemini-1.5-flash-8b`, `gemini-1.5-flash-8b-001`, `gemma-3-2b`, `gemma-3-9b`, `gemma-3-27b`, `gemma-2-2b`, `gemma-2-9b`, `gemma-2-27b`, `codegemma-2b`, `codegemma-7b`
 
-- **Llama 3.2**: Versatile general-purpose model
-- **Code Llama**: Specialized for coding tasks  
-- **Mistral**: Efficient European AI model
-- **Custom Models**: Any Ollama-compatible model
+### Deepseek 
+Get an API key from [Deepseek Platform](https://platform.deepseek.com/)
 
-<img src="/images/model-selection.png" alt="AI Model Selection" />
+`deepseek-chat`, `deepseek-reasoner`
 
-## Setting Up AI Providers
+### Ollama
+Make sure you have [Ollama installed](https://ollama.com/), and the MCPJam Ollama URL configuration is pointing to your Ollama instance. 
 
-### OpenAI Configuration
+Start an Ollama instance with `ollama serve <model>`. MCPJam will automatically detect any Ollama models running. 
 
-1. **Get API Key**: Visit [OpenAI's API page](https://platform.openai.com/api-keys)
-2. **Add to Inspector**: Go to Settings → AI Providers
-3. **Enter Credentials**:
-   ```json
-   {
-     "provider": "openai",
-     "apiKey": "sk-...",
-     "organization": "org-..." // Optional
-   }
-   ```
+## Choose an LLM model
 
-### Claude Configuration
+Once you've configured your LLM API keys, go to the Playground tab. On the bottom near the text input, you should see a LLM model selector. Select the model from the ones you've configured
 
-1. **Get API Key**: Visit [Anthropic Console](https://console.anthropic.com/)
-2. **Configure in Inspector**:
-   ```json
-   {
-     "provider": "anthropic", 
-     "apiKey": "sk-ant-...",
-     "version": "2023-06-01"
-   }
-   ```
+<Frame>
+<img
+  className="block"
+  src="/images/playground/model-selector.png"
+  alt="Model selector"
+  width="300"
+/>
+</Frame>
 
-### DeepSeek Setup
+## System prompt and temperature 
 
-1. **Create Account**: Sign up at [DeepSeek Platform](https://platform.deepseek.com/)
-2. **Configure Provider**:
-   ```json
-   {
-     "provider": "deepseek",
-     "apiKey": "sk-...",
-     "baseURL": "https://api.deepseek.com"
-   }
-   ```
+You can configure the system prompt and temperature, just like you would building an agent. The temperature is defaulted to the default value of the LLM providers (Claude = 0, OpenAI = 1.0).
 
-### Ollama Local Setup
+<Info>
+  Higher temperature settings tend to hallucinate more with MCP interactions
+</Info>
 
-Quick setup with CLI:
-```bash
-# Launch Inspector with Ollama
-npx @mcpjam/inspector@latest --ollama llama3.2
-```
+<Frame>
+<img
+  className="block"
+  src="/images/playground/prompt-config.png"
+  alt="Model selector"
+  width="300"
+/>
+</Frame>
 
-Manual setup:
-```bash
-# Install and start Ollama
-ollama pull llama3.2
-ollama serve
-```
+## Elicitation support 
 
-Then configure in Inspector:
-```json
-{
-  "provider": "ollama",
-  "baseURL": "http://localhost:11434",
-  "model": "llama3.2"
-}
-```
-
-## Using the Playground
-
-### Basic Chat Interface
-
-<img src="/images/playground-interface.png" alt="LLM Playground Interface" />
-
-The playground provides a familiar chat interface where you can:
-
-1. **Select Model**: Choose from configured AI providers
-2. **Set Parameters**: Adjust temperature, max tokens, etc.
-3. **Chat Naturally**: Interact as you would with any AI assistant
-4. **Monitor Tools**: See when and how your MCP tools are used
-
-### Testing Your MCP Tools
-
-When you chat with the AI, it automatically has access to your connected MCP server's tools:
-
-```
-You: "What's the weather like in San Francisco?"
+MCPJam has elicitation support in the LLM playground. Any elicitation requests will be shown as a popup modal. 

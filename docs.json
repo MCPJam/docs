@@ -9,9 +9,11 @@
   },
   "favicon": "/mcp_jam.svg",
   "navigation": {
-    "tabs": [
+    "dropdowns": [
       {
-        "tab": "MCPJam Inspector",
+        "dropdown": "MCPJam Inspector",
+        "icon": "book",
+        "description": "Inspector docs",
         "groups": [
           {
             "group": "Getting started",
@@ -42,14 +44,15 @@
         ]
       },
       {
-        "tab": "CLI Reference",
+        "dropdown": "MCP Evals",
+        "icon": "terminal",
+        "description": "Test your MCP servers",
         "groups": [
           {
-            "group": "CLI Documentation",
+            "group": "Overview",
             "pages": [
-              "cli/overview",
-              "cli/commands",
-              "cli/examples"
+              "evals/overview",
+              "evals/installation"
             ]
           }
         ]
